@@ -1,0 +1,6 @@
+@BospOne.PuntoDeVenta.WebApi_HostAddress = http://localhost:5178
+
+GET {{BospOne.PuntoDeVenta.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
