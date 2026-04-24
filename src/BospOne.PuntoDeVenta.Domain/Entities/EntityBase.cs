@@ -1,4 +1,4 @@
-﻿namespace BospOne.PuntoDeVenta.Application.Entities
+﻿namespace BospOne.PuntoDeVenta.Domain.Entities
 {
     public abstract class EntityBase
     {

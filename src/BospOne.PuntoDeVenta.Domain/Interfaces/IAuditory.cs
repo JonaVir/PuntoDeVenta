@@ -1,4 +1,4 @@
-﻿namespace BospOne.PuntoDeVenta.Application.Interfaces
+﻿namespace BospOne.PuntoDeVenta.Domain.Interfaces
 {
     public interface IAuditory
     {
