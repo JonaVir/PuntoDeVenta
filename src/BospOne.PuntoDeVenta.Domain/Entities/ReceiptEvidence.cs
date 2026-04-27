@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace BospOne.PuntoDeVenta.Domain.Entities
 {
-    public class ReceiveEvidence : EntityBase
+    public class ReceiptEvidence : EntityBase
     {
         public Guid ProductsReceivedID { get; set; }
         public string Url { get; set; } = string.Empty;
 
-        public ProductsReceived? ProductsReceived { get; set; }
+        public Receipt? ProductsReceived { get; set; }
     }
 }

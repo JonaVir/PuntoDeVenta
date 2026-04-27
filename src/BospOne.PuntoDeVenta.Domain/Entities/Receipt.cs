@@ -2,8 +2,9 @@
 
 namespace BospOne.PuntoDeVenta.Domain.Entities
 {
-    public class ProductsReceived : EntityBase, IAuditory
+    public class Receipt : EntityBase, IAuditory
     {
+        public string? UserID { get; set; }
         public Guid ProductID { get; set; }
         public Guid SupplierID { get; set; }
         public decimal AmountReceived { get; set; }
@@ -17,6 +18,6 @@ namespace BospOne.PuntoDeVenta.Domain.Entities
 
         public Product? Product { get; set; }
         public Supplier? Supplier { get; set; }
-        public ICollection<ReceiveEvidence>? ReceiveEvidences { get; set; }
+        public ICollection<ReceiptEvidence>? ReceiveEvidences { get; set; }
     }
 }

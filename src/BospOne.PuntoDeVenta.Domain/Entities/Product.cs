@@ -13,6 +13,6 @@ namespace BospOne.PuntoDeVenta.Domain.Entities
 
         public ICollection<Supplier>? Suppliers { get; set; }
         public ICollection<ProductSupplier>? ProductSuppliers { get; set; }
-        public ICollection<ProductsReceived>? productsReceiveds { get; set; }
+        public ICollection<Receipt>? Receipts { get; set; }
     }
 }
