@@ -1,0 +1,118 @@
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Common;
+using System.Reflection;
+using Core.Mappy.Configuration;
+using Core.Mappy.Interfaces;
+
+namespace Core.Mappy
+{
+    public class Mapper : IMapper
+    {
+        private readonly Dictionary<(Type,Type), object> _configurations = new();
+
+
+        public void CreateMap<TSource, TDestination>()
+        {
+            _configurations[(typeof(TSource), typeof(TDestination))] = new MapperConfiguration<TSource, TDestination>();
+        }
+
+        public void CreateMap<TSource, TDestination>(Action<MapperConfiguration<TSource, TDestination>> configure)
+        {
+            //Creación de la configuración
+            var config = new MapperConfiguration<TSource, TDestination>();
+
+            //Aplicar la configuración personalizada
+            configure(config);
+
+            //Crea clave
+            var key = (typeof(TSource), typeof(TDestination));
+
+            //Almacenar la configuración
+            _configurations[key] = config;
+        }
+
+        public TDestination Map<TDestination>(object source)
+        {
+  
+        }
+
+        private void ApplyCustomMappings<TDestination>(object source, TDestination destination, object config)
+        {
+            var genericMethod = typeof(Mapper)
+                .GetMethod(nameof(ApplyMappings), BindingFlags.NonPublic | BindingFlags.Instance)!
+                .MakeGenericMethod(source.GetType(), typeof(TDestination));
+
+            genericMethod.Invoke(this, new[] { source, destination, config });
+        }
+
+        private TDestination MapCollection<TDestination>(object source)
+        {
+            var sourceType = source.GetType();
+            var destinationType = typeof(TDestination);
+
+            var sourceElementType = sourceType.IsArray ? sourceType.GetElementType() : sourceType.GetGenericArguments()[0];
+            var destElementType = destinationType.IsGenericType ? destinationType.GetGenericArguments()[0] : destinationType.GetElementType();
+
+            var sourceList = ((IEnumerable)source).Cast<object>().ToList();
+
+            if(destElementType is null)
+            {
+                throw new InvalidOperationException("Destination element type cannot be null.");
+            }
+
+            var destList = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(destElementType))!;
+
+            //obtenemos la configuración para el mapeo de los elementos individuales
+            if(sourceElementType is null)
+            {
+                 throw new InvalidOperationException("Source element type cannot be null.");
+            }
+
+            var elementMappingKey = (sourceElementType, destElementType);
+            var hasElementConfig = _configurations.TryGetValue(elementMappingKey, out var elementConfig);
+
+            foreach(var item in sourceList)
+            {
+                var mappedItem = hasElementConfig ? MapWithConfig(item,destElementType,elementConfig!) : MapWithoutConfig(item, destElementType);
+                destList.Add(mappedItem);
+            }
+
+            if(destinationType == typeof(List<>).MakeGenericType(destElementType) ||
+                destinationType == typeof(IList<>).MakeGenericType(destElementType))
+            {
+                return (TDestination)destList;
+            }
+
+            if(destinationType == typeof(IEnumerable<>).MakeGenericType(destElementType))
+            {
+                return (TDestination)(IEnumerable)destList;
+            }
+
+            if(destinationType.IsArray)
+            {
+                var array = Array.CreateInstance(destElementType, destList.Count);
+                destList.CopyTo(array, 0);
+                return (TDestination)(object)array;
+            }
+
+            throw new NotSupportedException($"Destination collection type {destinationType.Name} is not supported.");
+        }
+
+        private object MapWithConfig(object source, Type destinationType, object config)
+        {
+            var destination = Activator.CreateInstance(destinationType);
+            var sourceType = source.GetType();
+
+            var applyMappings = typeof(Mapper)
+                .GetMethod(nameof(ApplyMappings), BindingFlags.NonPublic | BindingFlags.Instance)!
+                .MakeGenericMethod(sourceType, destinationType);
+
+            applyMappings.Invoke(this, new[] { source, destination, config });
+
+            return destination!;
+        }
+
+
+    }
+}
