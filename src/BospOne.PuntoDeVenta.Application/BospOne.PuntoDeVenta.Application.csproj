@@ -1,5 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\BospOne.PuntoDeVenta.Domain\BospOne.PuntoDeVenta.Domain.csproj" />
+    <ProjectReference Include="..\BospOne.PuntoDeVenta.Persistence\BospOne.PuntoDeVenta.Persistence.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
