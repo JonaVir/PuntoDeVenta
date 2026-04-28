@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data.Common;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using Core.Mappy.Configuration;
 using Core.Mappy.Interfaces;
 
@@ -34,8 +35,31 @@ namespace Core.Mappy
 
         public TDestination Map<TDestination>(object source)
         {
-  
+            if (source is null)
+                return default!;
+
+            var sourceType = source.GetType();
+            var destinationType = typeof(TDestination);
+
+            //Handle collection
+            if (IsCollectionType(destinationType))
+                return MapCollection<TDestination>(source);
+
+            var key = (sourceType, destinationType);
+            var destination = Activator.CreateInstance<TDestination>();
+
+            if (_configurations.TryGetValue(key, out var config))
+            {
+                ApplyCustomMappings(source, destination, config);
+            }
+            else
+            {
+                ApplyAutoMapping(source, destination);
+            }
+
+            return destination!;
         }
+        
 
         private void ApplyCustomMappings<TDestination>(object source, TDestination destination, object config)
         {
@@ -113,6 +137,79 @@ namespace Core.Mappy
             return destination!;
         }
 
+        private void ApplyMappings<TSource, TDestination>(
+            TSource source,
+            TDestination destination,
+            MapperConfiguration<TSource,TDestination> config)
+        {
+            if (source == null || destination == null)
+                return;
 
+            //Apply custom mappings first
+            var mappings = config.GetMappings();
+
+            foreach(var (propertyName, sourceFunc) in mappings)
+            {
+                var destProperty = typeof(TDestination).GetProperty(propertyName);
+
+                if(destProperty?.CanWrite == true)
+                {
+                    var value = sourceFunc(source);
+
+                    if(value != null)
+                    {
+                        destProperty.SetValue(destination, value);
+                    }
+                }
+            }
+
+            //Apply auto Mapping for remaining properties
+            ApplyAutoMapping(source, destination);
+        }
+
+        private object MapWithoutConfig(object source, Type destinationType)
+        {
+            var destination = Activator.CreateInstance(destinationType);
+            var genericAutoMapMethod = typeof(Mapper)
+                .GetMethod(nameof(ApplyAutoMapping), BindingFlags.NonPublic | BindingFlags.Instance)!
+                .MakeGenericMethod(destinationType);
+
+            genericAutoMapMethod.Invoke(this, new[] { source, destination });
+
+            if(destination == null)
+            {
+                throw new InvalidOperationException("Mapping failed: destination object is null");
+            }
+
+            return destination;
+        }
+
+        private void ApplyAutoMapping<TDestination>(object source, TDestination? destination)
+        {
+            var sourceProps = source.GetType().GetProperties();
+            var destProps = typeof(TDestination).GetProperties();
+
+            foreach(var sourceProp in sourceProps)
+            {
+                var destProp = destProps.FirstOrDefault(p =>
+                p.Name == sourceProp.Name &&
+                (p.PropertyType == sourceProp.PropertyType || sourceProp.PropertyType.IsAssignableTo(p.PropertyType))
+                );
+
+                if(destProp?.CanWrite == true)
+                {
+                    var value = sourceProp.GetValue(source);
+                    if (value != null)
+                        destProp.SetValue(destination, value);
+                }
+            }
+        }
+
+        private bool IsCollectionType(Type type)
+        {
+            return type.IsGenericType && (
+                type.GetGenericTypeDefinition() == typeof(List<>) ||
+                type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+        }
     }
 }
