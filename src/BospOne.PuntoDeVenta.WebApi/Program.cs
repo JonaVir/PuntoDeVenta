@@ -1,41 +1,63 @@
+using BospOne.PuntoDeVenta.Application;
+using BospOne.PuntoDeVenta.Domain.Entities;
+using BospOne.PuntoDeVenta.Persistence;
+using BospOne.PuntoDeVenta.WebApi.Extensions;
+using BospOne.PuntoDeVenta.WebApi.Middleware;
+using Microsoft.AspNetCore.OData;
+using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddApplication();
+builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddIdentityService(builder.Configuration);
+builder.Services.AddPoliciesServices();
+builder.Services.AddHttpContextAccessor();
+
+IEdmModel GetEdmModel()
+{
+    var edm = new ODataConventionModelBuilder();
+
+    edm.EntitySet<Product>("Products");
+    edm.EntitySet<Supplier>("Suppliers");
+    return edm.GetEdmModel();
+}
+
+builder.Services.AddControllers()
+    .AddOData(opt => opt
+    .Select()
+    .Filter()
+    .OrderBy()
+    .Expand()
+    .Count()
+    .SetMaxTop(100)
+    .AddRouteComponents("odata",GetEdmModel())
+);
+
+builder.Services.AddSwaggerDocumentation();
+builder.Services.AddCors(o => o.AddPolicy("corsapp", builder =>
+{
+    builder.WithOrigins("*")
+    .AllowAnyMethod()
+    .AllowAnyHeader();
+}));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseHttpsRedirection();
+app.useSwaggerDocumentation();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseCors("corsapp");
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+await app.SeedDataAuthentication();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
+app.MapControllers();
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+
+
+
+

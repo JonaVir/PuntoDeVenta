@@ -3,6 +3,7 @@ using BospOne.PuntoDeVenta.Persistence.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BospOne.PuntoDeVenta.Persistence
 {
@@ -13,6 +14,8 @@ namespace BospOne.PuntoDeVenta.Persistence
         public DbSet<Product>? products { get; set; }
         public DbSet<Receipt> Receipts { get; set; }
 
+        private static readonly string adminId = "6f1b8c7e-2d7a-4c3e-9c2f-1a9c5f4b8e21";
+        private static readonly string userId = "b3a4d9f2-8e6c-4a1c-9a5b-2d7f8c6e4b19";
         #endregion
 
         #region Builders
@@ -95,10 +98,7 @@ namespace BospOne.PuntoDeVenta.Persistence
         }
 
         private void LoadSecurityData(ModelBuilder modelBuilder)
-        {
-            var adminId = Guid.NewGuid().ToString();
-            var userId = Guid.NewGuid().ToString();
-
+        {         
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole
                 {
@@ -202,7 +202,6 @@ namespace BospOne.PuntoDeVenta.Persistence
                     ClaimValue = PolicyMaster.RECEIPT_WRITE,
                     RoleId = userId
                 }
-
             );
         }
         #endregion
