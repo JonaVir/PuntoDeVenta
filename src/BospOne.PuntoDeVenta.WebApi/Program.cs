@@ -14,6 +14,7 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddIdentityService(builder.Configuration);
 builder.Services.AddPoliciesServices();
 builder.Services.AddHttpContextAccessor();
+// builder.Services.AddControllers();
 
 IEdmModel GetEdmModel()
 {

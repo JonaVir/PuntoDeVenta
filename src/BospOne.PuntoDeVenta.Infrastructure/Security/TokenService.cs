@@ -2,6 +2,7 @@
 using BospOne.PuntoDeVenta.Domain.Entities;
 using BospOne.PuntoDeVenta.Persistence;
 using BospOne.PuntoDeVenta.Persistence.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -15,13 +16,15 @@ namespace BospOne.PuntoDeVenta.Infrastructure.Security
     {
         #region Fields and properties
         private readonly BospOneDbContext Context;
+        private readonly UserManager<AppUser> UserManager;
         private readonly IConfiguration Configuration;
         #endregion
 
         #region Builders
-        public TokenService(BospOneDbContext context, IConfiguration configuration)
+        public TokenService(BospOneDbContext context,UserManager<AppUser> userManager, IConfiguration configuration)
         {
             Context = context;
+            UserManager = userManager;
             Configuration = configuration;
         }
         #endregion
@@ -41,18 +44,21 @@ namespace BospOne.PuntoDeVenta.Infrastructure.Security
                 
             ").ToListAsync();
 
+            var rol = UserManager.GetRolesAsync(user).Result.FirstOrDefault();
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName!),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email!)
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.Role,rol!)
             };
 
             foreach(var policy in policies)
             {
                 if(policy is not null)
                 {
-                    claims.Add(new(CustomClaims.POLICIES, policy));
+                    claims.Add(new Claim(CustomClaims.POLICIES, policy));
                 }
             }
 

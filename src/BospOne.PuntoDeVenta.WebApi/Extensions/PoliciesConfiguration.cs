@@ -15,10 +15,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.PRODUCT_WRITE, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(
@@ -26,10 +23,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.PRODUCT_UPDATE, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(
@@ -37,10 +31,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.PRODUCT_DELETE, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(
@@ -48,10 +39,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.SUPPLIER_READ, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(
@@ -59,10 +47,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.SUPPLIER_WRITE, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(
@@ -70,10 +55,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.SUPPLIER_UPDATE, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(
@@ -81,10 +63,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.SUPPLIER_DELETE, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(
@@ -92,10 +71,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.RECEIPT_READ, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(
@@ -103,10 +79,7 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
                         )
                     )
                 );
-            });
 
-            services.AddAuthorization(opt =>
-            {
                 opt.AddPolicy(PolicyMaster.RECEIPT_WRITE, policy =>
                     policy.RequireAssertion(
                         context => context.User.HasClaim(

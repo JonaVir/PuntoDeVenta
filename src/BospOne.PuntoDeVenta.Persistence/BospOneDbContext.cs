@@ -10,10 +10,10 @@ namespace BospOne.PuntoDeVenta.Persistence
     public class BospOneDbContext : IdentityDbContext<AppUser>
     {
         #region Fields and properties
-        public DbSet<Supplier>? suppliers { get; set; }
-        public DbSet<Product>? products { get; set; }
+        public DbSet<Supplier>? Suppliers { get; set; }
+        public DbSet<Product>? Products { get; set; }
         public DbSet<Receipt> Receipts { get; set; }
-
+        public DbSet<ProductSupplier> ProductSuppliers { get; set; }
         private static readonly string adminId = "6f1b8c7e-2d7a-4c3e-9c2f-1a9c5f4b8e21";
         private static readonly string userId = "b3a4d9f2-8e6c-4a1c-9a5b-2d7f8c6e4b19";
         #endregion
@@ -84,6 +84,19 @@ namespace BospOne.PuntoDeVenta.Persistence
                         j.HasKey(t => new { t.SupplierID, t.ProductID });
                     }
                 );
+
+            builder.Entity<ProductSupplier>(entity => 
+            {
+                entity.HasKey(ps => new { ps.SupplierID, ps.ProductID });
+
+                entity.HasOne(ps => ps.Product)
+                    .WithMany(p => p.ProductSuppliers)
+                    .HasForeignKey(ps => ps.ProductID);
+
+                entity.HasOne(ps => ps.Supplier)
+                    .WithMany(s => s.ProductSuppliers)
+                    .HasForeignKey(ps => ps.SupplierID);
+            });
 
             builder.Entity<Receipt>(entity =>
             {

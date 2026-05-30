@@ -2,6 +2,7 @@
 {
     public interface IUserAccessor
     {
+        public string GetUserIdentifier();
         string GetUserName();
         string GetEmail();
     }

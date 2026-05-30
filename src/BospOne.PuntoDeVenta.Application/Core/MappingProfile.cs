@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BospOne.PuntoDeVenta.Application.Products.Read;
+using BospOne.PuntoDeVenta.Application.Suppliers.Read;
+using BospOne.PuntoDeVenta.Application.Users.GetUsers;
+using BospOne.PuntoDeVenta.Domain.Entities;
+using BospOne.PuntoDeVenta.Persistence.Models;
 
 namespace BospOne.PuntoDeVenta.Application.Core
 {
@@ -11,9 +11,9 @@ namespace BospOne.PuntoDeVenta.Application.Core
     {
         public MappingProfile()
         {
-            // Aquí puedes configurar tus mapeos personalizados
-            // Por ejemplo:
-            // CreateMap<Source, Destination>();
+            CreateMap<Supplier, SupplierResponse>();
+            CreateMap<Product, ProductResponse>();
+            CreateMap<AppUser, UserResponse>();
         }
     }
 }

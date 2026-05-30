@@ -1,11 +1,6 @@
 ﻿using BospOne.PuntoDeVenta.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BospOne.PuntoDeVenta.Infrastructure.Security
 {
@@ -23,6 +18,11 @@ namespace BospOne.PuntoDeVenta.Infrastructure.Security
         #endregion
 
         #region Methods
+
+        public string GetUserIdentifier()
+        {
+            return HttpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        }
         public string GetEmail()
         {
             return HttpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.Email)!;

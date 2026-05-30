@@ -25,6 +25,7 @@ namespace BospOne.PuntoDeVenta.Domain.Entities
 
         public ICollection<Product>? Products { get; set; }
         public ICollection<ProductSupplier>? ProductSuppliers { get; set; }
+
         public ICollection<Receipt>? Receipts { get; set; }
     }
 }

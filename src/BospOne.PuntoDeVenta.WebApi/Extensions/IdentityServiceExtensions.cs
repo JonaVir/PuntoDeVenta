@@ -5,7 +5,6 @@ using BospOne.PuntoDeVenta.Persistence.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace BospOne.PuntoDeVenta.WebApi.Extensions
@@ -18,8 +17,12 @@ namespace BospOne.PuntoDeVenta.WebApi.Extensions
             {
                 opt.Password.RequireNonAlphanumeric = false;
                 opt.User.RequireUniqueEmail = true;
-            }).AddRoles<IdentityRole>().AddEntityFrameworkStores<BospOneDbContext>();
+            })
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<BospOneDbContext>()
+            .AddDefaultTokenProviders();
 
+            services.AddIdentity<AppUser, IdentityRole>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserAccessor, UserAccessor>();
 
